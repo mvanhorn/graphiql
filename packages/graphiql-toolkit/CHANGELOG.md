@@ -1,5 +1,27 @@
 # @graphiql/toolkit
 
+## 1.0.0-alpha.0
+
+### Major Changes
+
+- [#4392](https://github.com/graphql/graphiql/pull/4392) [`26ae143`](https://github.com/graphql/graphiql/commit/26ae143ba68004d4a50468ba1feb649ace673f3a) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Remove the deprecated `legacyClient` alias from `CreateFetcherOptions`. It duplicated `legacyWsClient` — pass `legacyWsClient` instead.
+
+### Minor Changes
+
+- [#4360](https://github.com/graphql/graphiql/pull/4360) [`cfca05c`](https://github.com/graphql/graphiql/commit/cfca05ca80303808951d6657269c7393f18e6853) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Add support for the HTTP `QUERY` method. `createTransport` now accepts `'QUERY'` in `method` / `supportedMethods`; a `QUERY` request sends a JSON body like `POST` but is safe and idempotent like `GET` (per the [HTTP QUERY method](https://datatracker.ietf.org/doc/draft-ietf-httpbis-safe-method-w-body/)). Because `QUERY` is a safe method, mutations sent over it are transparently upgraded to `POST` (or blocked in the UI when `POST` is unavailable), the same as `GET`. The top-bar method chip now cycles through all supported methods instead of toggling between two.
+
+- [#4360](https://github.com/graphql/graphiql/pull/4360) [`cfca05c`](https://github.com/graphql/graphiql/commit/cfca05ca80303808951d6657269c7393f18e6853) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - The top bar now displays the active HTTP method and endpoint URL from the configured `transport`. When the transport supports both GET and POST, an inline GET/POST switcher is shown; toggling it changes the method used for subsequent requests. Consumers using a legacy `fetcher` see no switcher and a `—` placeholder for the URL.
+
+- [#4333](https://github.com/graphql/graphiql/pull/4333) [`093cb10`](https://github.com/graphql/graphiql/commit/093cb100a4524b1005b82c1c064bb897416bfc82) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Add a `Transport` API alongside the existing `Fetcher`. `createTransport({...})` performs the GraphQL request and returns a `TransportResponse` carrying the real HTTP wire metadata (status, headers, timing, size) for queries, mutations, subscriptions, and incremental delivery. `<GraphiQL>` accepts a new `transport` prop, mutually exclusive with `fetcher` at the type level, that lets the response pane surface those values directly from the underlying `Response`. Subscriptions require an explicit `subscriptionClient` satisfying a small `SubscriptionClient` contract — a single `.subscribe(request, sink)` method that `graphql-ws` and `graphql-sse` clients meet directly, and that a custom HTTP `multipart/mixed` client can implement just as easily; the toolkit no longer constructs one. The CDN bundle exposes `GraphiQL.createTransport` and `GraphiQL.createWsClient` so script-tag consumers can adopt without a bundler.
+
+  `createGraphiQLFetcher`, the `Fetcher` type and its companions, and the `<GraphiQL fetcher={...}>` prop are deprecated but continue to work unchanged. Existing code keeps compiling. Consumers on the deprecated path see a one-time dismissible banner in the response pane pointing at `docs/migration/graphiql-6.0.0.md` rather than fabricated status/timing/size values.
+
+- [#4349](https://github.com/graphql/graphiql/pull/4349) [`2138336`](https://github.com/graphql/graphiql/commit/2138336fd269d2eeb74476b2d8e7f6998e175e9b) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - `createTransport` now supports GET requests per the GraphQL over HTTP spec. Pass `method: 'GET'` and `supportedMethods: ['GET', 'POST']` to encode query parameters into the URL with no request body. Mutations always use POST regardless of the selected method, as required by the spec. `Transport` gains `url`, `method`, `supportedMethods`, and an optional `setMethod` for switching between methods at runtime. The low-level `simpleHttpTransport` and `multipartHttpTransport` primitives also accept an optional `method` argument for callers that need more control.
+
+### Patch Changes
+
+- [#4316](https://github.com/graphql/graphiql/pull/4316) [`eb46e2f`](https://github.com/graphql/graphiql/commit/eb46e2fe17413d9f9a52c7d7780b5cbaf799050e) Thanks [@trevor-scheer](https://github.com/trevor-scheer)! - Show a `MethodPill` (`QRY`/`MUT`/`SUB`) on each History row in place of the green status dot. `QueryStoreItem` gains an optional `operation` field, populated at write time from the parsed query. The Clear button no longer flashes green on success.
+
 ## 0.12.1
 
 ### Patch Changes
